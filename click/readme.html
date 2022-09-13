@@ -1173,14 +1173,15 @@ In script itself, volumes/adcm cleaning is hard-coded. So it always removes ADCM
 </pre></div></p>
 <p><code>-c "ADQM Cluster"</code> – tell ADCM the name of the new Cluster</p>
 <p><code>-t "ch1 ch2 ch3 ch4"</code> – tell ADCM target hostnames (Cluster member names)</p>
-<p><img alt="" src="/Users/echerny/Documents/arenadata2022/euch/arenadata-docker/click/readme-img/adcm2_hosts.png" title="Host list example" /></p>
-<p><img alt="" src="/Users/echerny/Documents/arenadata2022/euch/arenadata-docker/click/readme-img/adcm2_host_config.png" title="Host settings example" /></p>
 <p><code>--adcm-config adcmconfig.json</code> – configuration JSON file for Global Configuration <a href="http://localhost:8000/admin/settings">http://localhost:8000/admin/settings</a></p>
-<p><img alt="" src="/Users/echerny/Documents/arenadata2022/euch/arenadata-docker/click/readme-img/adcmconfig.png" title="ADCM Settings applied from --adcm-config" /></p>
 <p><code>--adqmdb-config adqmdbconfig.json</code> - configuration JSON file for ADCM/CLUSTERS/ADQM CLUSTER/SERVICES/ADQMDB</p>
-<p><img alt="" src="/Users/echerny/Documents/arenadata2022/euch/arenadata-docker/click/readme-img/adqmdbconfig.png" title="ADQM Settings applied from --adqmdb-config" /></p>
 <h3 id="installation-steps-description">Installation steps description<a class="headerlink" href="#installation-steps-description" title="Permanent link"></a></h3>
+<p>The script configures ADCM and installs ADQMDB cluster. Result of each step displayed below.</p>
 <ol>
+<li>
+<p>ADCM settings applied (from file provided by &ndash;adcm-config option)
+<img alt="" src="/Users/echerny/Documents/arenadata2022/euch/arenadata-docker/click/readme-img/adcmconfig.png" title="ADCM Settings applied from --adcm-config" /></p>
+</li>
 <li>
 <p>Bundle upload from specified bundles directory (-b / &ndash;bundles-location).
 <img alt="" src="/Users/echerny/Documents/arenadata2022/euch/arenadata-docker/click/readme-img/adcm0.png" title="Bundle upload from specified bundles directory" /></p>
@@ -1194,12 +1195,23 @@ In script itself, volumes/adcm cleaning is hard-coded. So it always removes ADCM
 <img alt="" src="/Users/echerny/Documents/arenadata2022/euch/arenadata-docker/click/readme-img/adcm2_hosts.png" title="Hosts created" /></p>
 </li>
 <li>
+<p>Host settings applied. Host username and password taken from $ANSIBLE_USERNAME and $ANSIBLE_PASSWORD env. variables.
+<img alt="" src="/Users/echerny/Documents/arenadata2022/euch/arenadata-docker/click/readme-img/adcm2_host_config.png" title="Host settings example" /></p>
+</li>
+<li>
 <p>Status checkers installed for all hosts.
 <img alt="" src="/Users/echerny/Documents/arenadata2022/euch/arenadata-docker/click/readme-img/adcm3.png" title="Status checkers installed for all hosts" /></p>
 </li>
 <li>
-<p>Cluster created. Services an hosts added to the cluster.
-<img alt="" src="/Users/echerny/Documents/arenadata2022/euch/arenadata-docker/click/readme-img/adcm4_services.png" title="Services added to the cluster" />
+<p>Cluster created. Cluster name is taken from -c / &ndash;cluster-name option. Services added to the cluster.
+<img alt="" src="/Users/echerny/Documents/arenadata2022/euch/arenadata-docker/click/readme-img/adcm4_services.png" title="Services added to the cluster" /></p>
+</li>
+<li>
+<p>ADQM settings modified (from file provided by &ndash;adqmdb-config option).
+<img alt="" src="/Users/echerny/Documents/arenadata2022/euch/arenadata-docker/click/readme-img/adqmdbconfig.png" title="ADQMDB Settings applied from --adqmdb-config" /></p>
+</li>
+<li>
+<p>Hosts added to the cluster. Script adds all the hosts defined on previous steps.
 <img alt="" src="/Users/echerny/Documents/arenadata2022/euch/arenadata-docker/click/readme-img/adcm5_hosts.png" title="Hosts added to the cluster" /></p>
 </li>
 <li>

@@ -119,19 +119,16 @@ bash-3.2.57(1)-release, curl-7.79.1, jq-1.6, rename-1.601
 
 ```-t "ch1 ch2 ch3 ch4"``` – tell ADCM target hostnames (Cluster member names)
 
-![](readme-img/adcm2_hosts.png "Host list example")
-
-![](readme-img/adcm2_host_config.png "Host settings example")
-
 ```--adcm-config adcmconfig.json``` – configuration JSON file for Global Configuration http://localhost:8000/admin/settings
-
-![](readme-img/adcmconfig.png "ADCM Settings applied from --adcm-config")
 
 ```--adqmdb-config adqmdbconfig.json``` - configuration JSON file for ADCM/CLUSTERS/ADQM CLUSTER/SERVICES/ADQMDB
 
-![](readme-img/adqmdbconfig.png "ADQM Settings applied from --adqmdb-config")
-
 ### Installation steps description
+
+The script configures ADCM and installs ADQMDB cluster. Result of each step displayed below.
+
+1. ADCM settings applied (from file provided by --adcm-config option)
+![](readme-img/adcmconfig.png "ADCM Settings applied from --adcm-config")
 
 1. 
 Bundle upload from specified bundles directory (-b / --bundles-location).
@@ -143,11 +140,19 @@ Bundle upload from specified bundles directory (-b / --bundles-location).
 1. Hosts created (defined by -t / --target-hosts option).
 ![](readme-img/adcm2_hosts.png "Hosts created")
 
+1. Host settings applied. Host username and password taken from $ANSIBLE_USERNAME and $ANSIBLE_PASSWORD env. variables.
+![](readme-img/adcm2_host_config.png "Host settings example")
+
 1. Status checkers installed for all hosts.
 ![](readme-img/adcm3.png "Status checkers installed for all hosts")
 
-1. Cluster created. Services an hosts added to the cluster.
+1. Cluster created. Cluster name is taken from -c / --cluster-name option. Services added to the cluster.
 ![](readme-img/adcm4_services.png "Services added to the cluster")
+
+1. ADQM settings modified (from file provided by --adqmdb-config option).
+![](readme-img/adqmdbconfig.png "ADQMDB Settings applied from --adqmdb-config")
+
+1. Hosts added to the cluster. Script adds all the hosts defined on previous steps.
 ![](readme-img/adcm5_hosts.png "Hosts added to the cluster")
 
 1. Service Components mapped to cluster hosts (all-to-all except for Zookeeper). Zookeeper Cluster requires odd member for cluster voting consensus.
