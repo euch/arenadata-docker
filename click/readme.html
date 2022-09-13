@@ -1231,4 +1231,102 @@ In script itself, volumes/adcm cleaning is hard-coded. So it always removes ADCM
 <p>You may need to delete Cluster, HostProvider and Hosts from ADCM if:
     - Cluster name already exists
     - One of the hosts you define in <code>-t</code> is already part of the cluster</p>
-<p><strong>[Important]</strong> Make sure you have a valid backup of your ADQM DB Data if you modify or reinstall the cluster.</p></article></body></html>
+<p><strong>[Important]</strong> Make sure you have a valid backup of your ADQM DB Data if you modify or reinstall the cluster.</p>
+<h3 id="remote-connection">Remote connection<a class="headerlink" href="#remote-connection" title="Permanent link"></a></h3>
+<p>To connect, make sure that at least one ClickHouse host is exposing port 8123. If you use Docker deployment, modify docker-compose.yml before host deployment.</p>
+<p>Once you got host with open port, you need to log into the host</p>
+<div class="highlight"><pre>docker exec -it ch3 bash
+</pre></div>
+
+<p>And create a new user</p>
+<div class="highlight"><pre># clickhouse-client
+
+ch1 :) CREATE USER user HOST ANY IDENTIFIED WITH sha256_password BY &#39;password&#39;;
+
+Ok.
+
+0 rows in set. Elapsed: 0.009 sec.
+
+ch1 :) GRANT SELECT ON * TO user;
+
+Ok.
+
+0 rows in set. Elapsed: 0.005 sec.
+
+ch1 :) Bye.
+</pre></div>
+
+<p>Now you should be able to connect from a remote machine. Here is an example for DBeaver database client.</p>
+<p><img alt="" src="/Users/echerny/Documents/arenadata2022/euch/arenadata-docker/click/readme-img/dbeaver.png" title="DBeaver settings" /></p>
+<h3 id="connect-to-remote-rdbbms-using-clickhouse-jdbc">Connect to remote RDBBMS using clickhouse-jdbc<a class="headerlink" href="#connect-to-remote-rdbbms-using-clickhouse-jdbc" title="Permanent link"></a></h3>
+<p>To read data from remote database, log into one of the nodes</p>
+<div class="highlight"><pre>docker exec -it ch3 bash
+</pre></div>
+
+<p>then, edit datasource in <code>/etc/clickhouse-jdbc-bridge/config/datasources</code>.</p>
+<p>Datasource example for PostgreSQL:
+<div class="highlight"><pre>[root@ch3 datasources]# cat postgres13.json
+{
+  &quot;$schema&quot;: &quot;../docker/config/datasource.jschema&quot;,
+  &quot;postgres13&quot;: {
+    &quot;converter&quot;: {
+      &quot;mappings&quot;: [{ &quot;nativeType&quot;: &quot;bool&quot;, &quot;toType&quot;: &quot;String&quot; }]
+    },
+    &quot;driverUrls&quot;: [
+      &quot;https://repo1.maven.org/maven2/org/postgresql/postgresql/42.2.24/postgresql-42.2.24.jar&quot;
+    ],
+    &quot;driverClassName&quot;: &quot;org.postgresql.Driver&quot;,
+    &quot;jdbcUrl&quot;: &quot;jdbc:postgresql://&lt; host &gt;/&lt; database &gt;&quot;,
+    &quot;username&quot;: &lt; user &gt;,
+    &quot;password&quot;: &lt; password &gt;,
+    &quot;initializationFailTimeout&quot;: 0,
+    &quot;minimumIdle&quot;: 0,
+    &quot;maximumPoolSize&quot;: 10
+  }
+}
+</pre></div></p>
+<p>Datasource example for MySQL:
+<div class="highlight"><pre>[root@ch3 datasources]# cat mysql8.json
+{
+  &quot;$schema&quot;: &quot;../docker/config/datasource.jschema&quot;,
+  &quot;mysql8&quot;: {
+    &quot;driverUrls&quot;: [
+      &quot;https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.26/mysql-connector-java-8.0.26.jar&quot;
+    ],
+    &quot;driverClassName&quot;: &quot;com.mysql.cj.jdbc.Driver&quot;,
+    &quot;jdbcUrl&quot;: &quot;jdbc:mysql://&lt; host &gt;/&lt; database &gt;?allowPublicKeyRetrieval=true&amp;useSSL=false&amp;useCompression=false&amp;useOldAliasMetadataBehavior=true&amp;allowMultiQueries=true&quot;,
+    &quot;username&quot;: &lt; user &gt;,
+    &quot;password&quot;: &lt; password &gt;,
+    &quot;initializationFailTimeout&quot;: 0,
+    &quot;minimumIdle&quot;: 0,
+    &quot;maximumPoolSize&quot;: 10
+  }
+}
+</pre></div></p>
+<p>Make sure to change host, database, user and password. Usage examples from ClickHouse documentation: <a href="https://clickhouse.com/docs/en/sql-reference/table-functions/jdbc/">https://clickhouse.com/docs/en/sql-reference/table-functions/jdbc/</a></p>
+<p>Tested read examples (from PostgreSQL and from MySQL):</p>
+<div class="highlight"><pre>[root@ch3 datasources]# clickhouse-client
+ClickHouse client version 22.3.7.28.
+Connecting to localhost:9000 as user default.
+Connected to ClickHouse server version 22.3.7 revision 54455.
+
+ch3 :) select * from jdbc(&#39;postgres13&#39;, &#39;&#39;, &#39;temperature&#39;)
+
+SELECT *
+FROM jdbc(&#39;postgres13&#39;, &#39;&#39;, &#39;temperature&#39;)
+
+Query id: dedba154-f53a-4dfe-85fe-1cdc1feab9a8
+
+┌─location_id─┬──────────────────timestamp─┬───value─┐
+│           1 │ 2022-09-13 17:33:33.780000 │ 20.0002 │
+└─────────────┴────────────────────────────┴─────────┘
+
+1 rows in set. Elapsed: 0.072 sec.
+
+ch3 :) select * from jdbc(&#39;mysql8&#39;, &#39;ch_src&#39;, &#39;temperature&#39;)
+
+SELECT *
+FROM jdbc(&#39;mysql8&#39;, &#39;ch_src&#39;, &#39;temperature&#39;)
+
+Query id: db702d8c-b927-4471-9d42-2989a55404c8
+</pre></div></article></body></html>

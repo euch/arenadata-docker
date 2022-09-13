@@ -171,3 +171,121 @@ You may need to delete Cluster, HostProvider and Hosts from ADCM if:
 	- One of the hosts you define in ```-t``` is already part of the cluster
 
 **[Important]** Make sure you have a valid backup of your ADQM DB Data if you modify or reinstall the cluster.
+
+### Remote connection
+
+To connect, make sure that at least one ClickHouse host is exposing port 8123. If you use Docker deployment, modify docker-compose.yml before host deployment.
+
+Once you got host with open port, you need to log into the host
+
+```
+docker exec -it ch3 bash
+```
+
+And create a new user
+
+```
+# clickhouse-client
+
+ch1 :) CREATE USER user HOST ANY IDENTIFIED WITH sha256_password BY 'password';
+
+Ok.
+
+0 rows in set. Elapsed: 0.009 sec.
+
+ch1 :) GRANT SELECT ON * TO user;
+
+Ok.
+
+0 rows in set. Elapsed: 0.005 sec.
+
+ch1 :) Bye.
+```
+
+Now you should be able to connect from a remote machine. Here is an example for DBeaver database client.
+
+![](readme-img/dbeaver.png "DBeaver settings")
+
+### Connect to remote RDBBMS using clickhouse-jdbc
+
+To read data from remote database, log into one of the nodes
+
+```
+docker exec -it ch3 bash
+```
+
+then, edit datasource in ```/etc/clickhouse-jdbc-bridge/config/datasources```.
+
+Datasource example for PostgreSQL:
+```
+[root@ch3 datasources]# cat postgres13.json
+{
+  "$schema": "../docker/config/datasource.jschema",
+  "postgres13": {
+    "converter": {
+      "mappings": [{ "nativeType": "bool", "toType": "String" }]
+    },
+    "driverUrls": [
+      "https://repo1.maven.org/maven2/org/postgresql/postgresql/42.2.24/postgresql-42.2.24.jar"
+    ],
+    "driverClassName": "org.postgresql.Driver",
+    "jdbcUrl": "jdbc:postgresql://< host >/< database >",
+    "username": < user >,
+    "password": < password >,
+    "initializationFailTimeout": 0,
+    "minimumIdle": 0,
+    "maximumPoolSize": 10
+  }
+}
+```
+
+Datasource example for MySQL:
+```
+[root@ch3 datasources]# cat mysql8.json
+{
+  "$schema": "../docker/config/datasource.jschema",
+  "mysql8": {
+    "driverUrls": [
+      "https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.26/mysql-connector-java-8.0.26.jar"
+    ],
+    "driverClassName": "com.mysql.cj.jdbc.Driver",
+    "jdbcUrl": "jdbc:mysql://< host >/< database >?allowPublicKeyRetrieval=true&useSSL=false&useCompression=false&useOldAliasMetadataBehavior=true&allowMultiQueries=true",
+    "username": < user >,
+    "password": < password >,
+    "initializationFailTimeout": 0,
+    "minimumIdle": 0,
+    "maximumPoolSize": 10
+  }
+}
+```
+
+Make sure to change host, database, user and password. Usage examples from ClickHouse documentation: https://clickhouse.com/docs/en/sql-reference/table-functions/jdbc/
+
+Tested read examples (from PostgreSQL and from MySQL):
+
+```
+[root@ch3 datasources]# clickhouse-client
+ClickHouse client version 22.3.7.28.
+Connecting to localhost:9000 as user default.
+Connected to ClickHouse server version 22.3.7 revision 54455.
+
+ch3 :) select * from jdbc('postgres13', '', 'temperature')
+
+SELECT *
+FROM jdbc('postgres13', '', 'temperature')
+
+Query id: dedba154-f53a-4dfe-85fe-1cdc1feab9a8
+
+┌─location_id─┬──────────────────timestamp─┬───value─┐
+│           1 │ 2022-09-13 17:33:33.780000 │ 20.0002 │
+└─────────────┴────────────────────────────┴─────────┘
+
+1 rows in set. Elapsed: 0.072 sec.
+
+ch3 :) select * from jdbc('mysql8', 'ch_src', 'temperature')
+
+SELECT *
+FROM jdbc('mysql8', 'ch_src', 'temperature')
+
+Query id: db702d8c-b927-4471-9d42-2989a55404c8
+```
