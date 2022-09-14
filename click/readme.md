@@ -7,6 +7,7 @@ docker-deploy.sh and install.sh documentation. Important sections:
 	1. [Important notes](#docker-deploy-important)
 1. [Cluster installer](#install)
 	1. [Important notes](#install-important)
+1. [Working with ADQM Cluster](#cluster)	
 
 ***
 
@@ -171,6 +172,8 @@ You may need to delete Cluster, HostProvider and Hosts from ADCM if:
 	- One of the hosts you define in ```-t``` is already part of the cluster
 
 **[Important]** Make sure you have a valid backup of your ADQM DB Data if you modify or reinstall the cluster.
+
+## Working with AQMD Database cluster <a name="cluster"></a>
 
 ### Remote connection
 

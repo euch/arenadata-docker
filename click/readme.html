@@ -1078,6 +1078,7 @@ body .markdown-body
 <li><a href="#install-important">Important notes</a></li>
 </ol>
 </li>
+<li><a href="#cluster">Working with ADQM Cluster</a>    </li>
 </ol>
 <hr />
 <h2 id="adcm-and-nodes-redeployment-scripts">ADCM and Nodes (re)Deployment Scripts<a class="headerlink" href="#adcm-and-nodes-redeployment-scripts" title="Permanent link"></a></h2>
@@ -1232,6 +1233,7 @@ In script itself, volumes/adcm cleaning is hard-coded. So it always removes ADCM
     - Cluster name already exists
     - One of the hosts you define in <code>-t</code> is already part of the cluster</p>
 <p><strong>[Important]</strong> Make sure you have a valid backup of your ADQM DB Data if you modify or reinstall the cluster.</p>
+<h2 id="working-with-aqmd-database-cluster">Working with AQMD Database cluster <a name="cluster"></a><a class="headerlink" href="#working-with-aqmd-database-cluster" title="Permanent link"></a></h2>
 <h3 id="remote-connection">Remote connection<a class="headerlink" href="#remote-connection" title="Permanent link"></a></h3>
 <p>To connect, make sure that at least one ClickHouse host is exposing port 8123. If you use Docker deployment, modify docker-compose.yml before host deployment.</p>
 <p>Once you got host with open port, you need to log into the host</p>
